@@ -13,6 +13,7 @@ public class GameClass {
     private Hero mainHero;
     private Monster currentMonster;
     private int currentRound;
+    private int monsterID = 0;
 
     public GameClass()
     {
@@ -30,7 +31,7 @@ public class GameClass {
         inpInt = sc.nextInt();
         mainHero = (Hero)heroPattern[inpInt - 1].clone();
         System.out.println("Вы выбрали " + mainHero.getName());
-        currentMonster = (Monster)monsterPattern[0].clone();
+        currentMonster = (Monster)monsterPattern[monsterID].clone();
 
         do
         {
@@ -39,16 +40,42 @@ public class GameClass {
             currentMonster.ShowInfo();
             System.out.println("Ход игрока");
             System.out.println("1. Атака 2. Защита 3. Пропустить ход 9. Завершить игру");
+            mainHero.makeNewRound();   //Сбрасываются действия предыдущего раунда и героя
+            inpInt = sc.nextInt();
             if (inpInt == 1)
             {
                 currentMonster.GetDamage(mainHero.MakeAttack());
             }
-            mainHero.GetDamage(currentMonster.MakeAttack());
-            inpInt = sc.nextInt();
+            if (inpInt == 2)
+            {
+                mainHero.setBlockStance();
+            }
             if (inpInt == 9) break;
+            currentMonster.makeNewRound();
+            mainHero.GetDamage(currentMonster.MakeAttack());
             currentRound++;
+            if (!currentMonster.isAlive)
+            {
+                System.out.println(currentMonster.getName() + "");
+                mainHero.expGain(currentMonster.getHpMax() * 5);
+                monsterID++;
+                if (monsterID < monsterPattern.length)
+                {
+                    currentMonster = (Monster)monsterPattern[monsterID].clone();
+                    System.out.println("На поле боя выходит " + currentMonster.getName());
+                }
+                else
+                    break;
+            }
+            if (!mainHero.isAlive){
+                break;
+            }
         }
         while (true);
+        if (!currentMonster.isAlive) System.out.println("Победил " + mainHero.getName());
+        if (!mainHero.isAlive) System.out.println("Победил " + currentMonster.getName());
+
+        System.out.println("Game Over");
 
     }
 
@@ -59,8 +86,8 @@ public class GameClass {
         heroPattern[2] = new Hero("Mage", "Loren", 120, 60, 0);
 
         monsterPattern[0] = new Monster("Humanoid", "Goblin", 50, 5, 1);
-        monsterPattern[1] = new Monster("Humanoid", "Orc", 80, 8, 2);
-        monsterPattern[2] = new Monster("Humanoid", "Troll", 100, 10, 3);
+        monsterPattern[1] = new Monster("Humanoid", "Orc", 80, 15, 2);
+        monsterPattern[2] = new Monster("Humanoid", "Troll", 100, 20, 3);
 
         currentRound = 1;
 
